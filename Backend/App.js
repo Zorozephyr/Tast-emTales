@@ -1,10 +1,32 @@
+//Password and username is the same but in lowercase
+//10rounds
+
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
+const expressSession = require('express-session');
+const bcrypt = require('bcrypt');
+const sessionMiddleware = expressSession({
+  secret: 'my-secret-key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    maxAge: 1000 * 60 * 60,
+  },
+});
 
 // Middleware for parsing JSON and URL-encoded data (if using body-parser)
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(sessionMiddleware);
+
+"MiddleWare to check authentication"
+const authenticationMiddleware = (req, res, next) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  next();
+};
 
 ////////////////////////////////////
 const Sequelize = require('sequelize');
@@ -45,6 +67,7 @@ const Recipe = sequelize.define('recipe', {
       type: Sequelize.STRING(50),
     },
   },{
+    tableName:'recipe',
     timestamps:false
   });
   
@@ -142,11 +165,85 @@ sequelize
     console.log('Failed to connect to the database:', err);
   });
 
+///////////////////////////////////////////////////////////
+//Start of Routes
 
-app.get('/',async (req, res) => {
-    const users = await User.findAll();
-      
-    res.json(users);
+//Login checks for username and email
+app.post('/login', async (req, res) => {
+  const { username,password } = req.body;
+  console.log(req.body)
+  const user = await User.findOne({ where: { Username:username } });
+  if (!user) {
+    return res.status(404).json({ message: 'User not found.' });
+  }
+  const passwordValid = await bcrypt.compare(password, user.Password);
+  if (!passwordValid) {
+    return res.status(401).json({ message: 'Incorrect password.' });
+  }
+  req.session.user = {
+    username,
+  };
+  res.cookie('session', req.sessionID);
+  res.json({ message: 'Login successful!' });
+});
+
+//Logout route.
+app.post('/logout',authenticationMiddleware,async (req, res) => {
+  req.session.destroy();
+  // Clear the user's browser cache.
+  res.clearCookie('session');
+  res.json({ message: 'Successfully LoggedOut!' });
+});
+
+//Recipe Search
+app.post('/search', async (req, res) => {
+  // Parse the request body to get the searchSentence.
+  let { searchSentence,cuisine } = req.body;
+  if(!searchSentence){
+    searchSentence="";
+  }
+  // Split the searchSentence into individual words.
+  const searchWords = searchSentence.split(' ');
+
+  // Create a WHERE clause for the query.
+  const searchConditions = searchWords.map(searchWord => ({
+    [Sequelize.Op.or]: [
+      {
+        Title: {
+          [Sequelize.Op.like]: `%${searchWord}%`,
+        },
+      },
+      {
+        Ingredients: {
+          [Sequelize.Op.like]: `%${searchWord}%`,
+        },
+      },
+      {
+        HowToCook: {
+          [Sequelize.Op.like]: `%${searchWord}%`,
+        },
+      },
+    ],
+  }));
+
+  const whereClause = {
+    [Sequelize.Op.and]: searchConditions,
+  };
+
+  if (cuisine) {
+    whereClause[Sequelize.Op.and] = [
+      whereClause[Sequelize.Op.and],
+      {
+        Cuisine: {
+          [Sequelize.Op.like]: `%${cuisine}%`,
+        },
+      },
+    ];
+  }
+
+  // Execute the query and return the results to the client.
+  const recipes = await Recipe.findAll({ where: whereClause });
+  res.json(recipes);
 });
 
 app.listen(port, () => {
