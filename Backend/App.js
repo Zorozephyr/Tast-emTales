@@ -119,10 +119,14 @@ const Recipe = sequelize.define('recipe', {
         key: 'UserID',
       },
     },
-  },{
-    timestamps:false,
+  }, {
+    timestamps: false,
+    tableName: 'comment',
   });
   
+  Comment.belongsTo(User, { as: 'users', foreignKey: 'UserID' });
+  
+
   const Rating = sequelize.define('rating', {
     RecipeID: {
       type: Sequelize.INTEGER,
@@ -137,7 +141,8 @@ const Recipe = sequelize.define('recipe', {
       allowNull: false,
     },
   },{
-    timestamps:false
+    timestamps:false,
+    tableName:'rating',
   });
   
   const Favourites = sequelize.define('favourites', {
@@ -150,7 +155,8 @@ const Recipe = sequelize.define('recipe', {
       primaryKey: true,
     },
   },{
-    timestamps:false
+    timestamps:false,
+    tableName:'favourites',
   });
 
 ///////////////////////////////////////
@@ -254,7 +260,6 @@ app.post('/recipe',authenticationMiddleware,async (req, res) => {
     return res.status(400).json({message:"All fields are required"});
   }
   const UserID=req.session.user.userID;
-  console.log(req.session.user,"      ",UserID);
   
   try{
     //Create The new recipe in the database
@@ -353,6 +358,117 @@ app.get('/recipe/:RecipeID',async(req, res) => {
     res.status(500).json({ message: 'Failed to retrieve the recipe' });
   }
 });
+
+// Retrieve all comments for a specific recipe by RecipeID and include the associated usernames
+app.get('/comments/:RecipeID', async (req, res) => {
+  const { RecipeID } = req.params;
+
+  try {
+    // Find all comments for the given RecipeID and include the associated user's username
+    const comments = await Comment.findAll({
+      where: { RecipeID: RecipeID },
+      include: [
+        {
+          model: User,
+          as: 'users', // Alias for the User model
+          attributes: ['Username'], // Include only the 'Username' field from the User model
+        },
+      ],
+    });
+
+    const processedComments = comments.map(comment => ({
+      CommentID: comment.CommentID,
+      CommentText: comment.CommentText,
+      RecipeID: comment.RecipeID,
+      UserID: comment.UserID,
+      Username: comment.users.Username,
+    }));
+
+    res.json(processedComments);
+  } catch (error) {
+    console.error('Error retrieving comments:', error);
+    res.status(500).json({ message: 'Failed to retrieve comments' });
+  }
+});
+
+//Post new comment 
+app.post('/comment/:RecipeID',authenticationMiddleware,async (req, res) => {
+  const {CommentText}=req.body;
+  const {RecipeID}=req.params;
+  const UserID= req.session.user.userID; 
+  if(!CommentText){
+    return res.status(400).json({message:"Comment Is Empty"});
+  }
+
+  try{
+    const newComment=await Comment.create({
+      CommentText,RecipeID,UserID
+    })
+    res.status(201).json(newComment);
+  }
+  catch(error){
+    console.error('Error creating a new comment:', error);
+    res.status(500).json({ message: 'Failed to create a new comment' });
+  }
+});
+
+//Get avg rating for a recipe
+app.get('/rating/:RecipeID', async (req, res) => {
+  const { RecipeID } = req.params;
+
+  try {
+    // Calculate the average rating for the given RecipeID
+    const averageRating = await Rating.findOne({
+      where: { RecipeID: RecipeID },
+      attributes: [
+        [Sequelize.fn('AVG', Sequelize.col('Rating')), 'averageRating'],
+      ],
+    });
+
+    if (averageRating && averageRating.dataValues.averageRating) {
+      res.json({ averageRating: averageRating.dataValues.averageRating });
+    } else {
+      res.json({ averageRating: 0 }); // Return 0 if there are no ratings
+    }
+  } catch (error) {
+    console.error('Error retrieving average rating:', error);
+    res.status(500).json({ message: 'Failed to retrieve average rating' });
+  }
+});
+
+// Post a new rating for a recipe
+app.post('/rating/:RecipeID', authenticationMiddleware, async (req, res) => {
+  const { UserID } = req.session.user;
+  const {Rating } = req.body;
+  const {RecipeID}=req.params
+
+  if ( !Rating) {
+    return res.status(400).json({ message: 'Rating is required as query parameters' });
+  }
+
+  try {
+    // Check if the user has already rated this recipe
+    const existingRating = await Rating.findAll({ where: { RecipeID, UserID } });
+
+    if (existingRating) {
+      return res.status(400).json({ message: 'You have already rated this recipe' });
+    }
+
+    // Create a new rating for the recipe
+    const newRating = await Rating.create({
+      RecipeID,
+      UserID,
+      Rating: parseInt(Rating), // Assuming Rating is an integer
+    });
+
+    res.status(201).json(newRating);
+  } catch (error) {
+    console.error('Error posting a new rating:', error);
+    res.status(500).json({ message: 'Failed to post a new rating' });
+  }
+});
+
+
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
