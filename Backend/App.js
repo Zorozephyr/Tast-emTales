@@ -55,7 +55,7 @@ const Recipe = sequelize.define('recipe', {
       type: Sequelize.TEXT,
       allowNull: false,
     },
-    UserId: {
+    UserID: {
       type: Sequelize.INTEGER,
       allowNull: true,
       references: {
@@ -182,6 +182,7 @@ app.post('/login', async (req, res) => {
   }
   req.session.user = {
     username,
+    userID:user.UserID,
   };
   res.cookie('session', req.sessionID);
   res.json({ message: 'Login successful!' });
@@ -244,6 +245,113 @@ app.post('/search', async (req, res) => {
   // Execute the query and return the results to the client.
   const recipes = await Recipe.findAll({ where: whereClause });
   res.json(recipes);
+});
+
+//Post New Recipe
+app.post('/recipe',authenticationMiddleware,async (req, res) => {
+  const {Title,Ingredients,HowToCook,Cuisine}=req.body;
+  if(!Title|!Ingredients|!HowToCook|!Cuisine){
+    return res.status(400).json({message:"All fields are required"});
+  }
+  const UserID=req.session.user.userID;
+  console.log(req.session.user,"      ",UserID);
+  
+  try{
+    //Create The new recipe in the database
+    const newRecipe=await Recipe.create({
+      Title,Ingredients,HowToCook,Cuisine,UserID
+    });
+    res.status(201).json(newRecipe);
+  }
+  catch(error){
+    console.error('Error creating a new recipe:', error);
+    res.status(500).json({ message: 'Failed to create a new recipe' });
+  }
+});
+
+//Edit or Update a Recipe
+app.put('/recipe/:RecipeID',authenticationMiddleware,async (req, res) => {
+  const {RecipeID}=req.params;
+  const {Title,Ingredients,HowToCook,Cuisine}=req.body;
+  const userID = req.session.user.userID;
+
+  try {
+    // Check if the recipe with the given recipeId exists and is associated with the logged-in user
+    const recipe = await Recipe.findOne({ where: { RecipeID: RecipeID, UserID: userID } });
+
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found or unauthorized to edit.' });
+    }
+
+    // Update the recipe with the new data
+    if(Title){
+      recipe.Title = Title;
+    }
+    if(Ingredients){
+      recipe.Ingredients = Ingredients;
+    }
+    if(HowToCook){
+      recipe.HowToCook = HowToCook;
+    }
+    if(Cuisine){
+      recipe.Cuisine = Cuisine;
+    }
+
+    // Save the updated recipe
+    await recipe.save();
+
+    res.json({ message: 'Recipe updated successfully', recipe });
+  } catch (error) {
+    console.error('Error updating the recipe:', error);
+    res.status(500).json({ message: 'Failed to update the recipe' });
+  }
+});
+
+// Delete a recipe
+app.delete('/recipe/:RecipeID', authenticationMiddleware, async (req, res) => {
+  const { RecipeID } = req.params;
+  const userID = req.session.user.userID; // Assuming you have user authentication in place
+
+  try {
+    // Check if the recipe with the given recipeId exists and is associated with the logged-in user
+    const recipe = await Recipe.findOne({ where: { RecipeID: RecipeID, UserID: userID } });
+
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found or unauthorized to delete.' });
+    }
+
+    // Delete the recipe from the database
+    await recipe.destroy();
+
+    res.json({ message: 'Recipe deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting the recipe:', error);
+    res.status(500).json({ message: 'Failed to delete the recipe' });
+  }
+});
+
+//Get a particular recipe for show page
+app.get('/recipe/:RecipeID',async(req, res) => {
+  const { RecipeID } = req.params;
+  try {
+    // Find the recipe with the given RecipeID and include the associated user (if any)
+    const recipe = await Recipe.findOne({
+      where: { RecipeID: RecipeID },
+    });
+
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found.' });
+    }
+
+    const user=await User.findOne({
+      where:{UserID:recipe.UserID}
+    });
+
+    res.json({...recipe.dataValues,Username:user.Username});
+  } catch (error) {
+    console.error('Error retrieving the recipe:', error);
+    res.status(500).json({ message: 'Failed to retrieve the recipe' });
+  }
 });
 
 app.listen(port, () => {
