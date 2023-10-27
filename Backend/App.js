@@ -144,22 +144,6 @@ const Recipe = sequelize.define('recipe', {
     timestamps:false,
     tableName:'rating',
   });
-  
-  const Favourites = sequelize.define('favourites', {
-    RecipeID: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-    },
-    UserID: {
-      type: Sequelize.INTEGER,
-      primaryKey: true,
-    },
-  },{
-    timestamps:false,
-    tableName:'favourites',
-  });
-
-///////////////////////////////////////
 
 
 sequelize
@@ -436,19 +420,20 @@ app.get('/rating/:RecipeID', async (req, res) => {
   }
 });
 
-// Post a new rating for a recipe
 app.post('/rating/:RecipeID', authenticationMiddleware, async (req, res) => {
-  const { UserID } = req.session.user;
-  const {Rating } = req.body;
-  const {RecipeID}=req.params
+  const UserID = req.session.user.userID;
+  const { ReqRating } = req.body;
+  const { RecipeID } = req.params;
 
-  if ( !Rating) {
-    return res.status(400).json({ message: 'Rating is required as query parameters' });
+  if (!Rating) {
+    return res.status(400).json({ message: 'Rating is required in the request body' });
   }
 
   try {
     // Check if the user has already rated this recipe
-    const existingRating = await Rating.findAll({ where: { RecipeID, UserID } });
+    const existingRating = await Rating.findOne({
+      where: { RecipeID:RecipeID, UserID:UserID },
+    });
 
     if (existingRating) {
       return res.status(400).json({ message: 'You have already rated this recipe' });
@@ -458,7 +443,7 @@ app.post('/rating/:RecipeID', authenticationMiddleware, async (req, res) => {
     const newRating = await Rating.create({
       RecipeID,
       UserID,
-      Rating: parseInt(Rating), // Assuming Rating is an integer
+      Rating: parseInt(ReqRating), // Assuming Rating is an integer
     });
 
     res.status(201).json(newRating);
@@ -467,6 +452,7 @@ app.post('/rating/:RecipeID', authenticationMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Failed to post a new rating' });
   }
 });
+
 
 
 
