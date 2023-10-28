@@ -223,6 +223,48 @@ app.post('/login', async (req, res) => {
   }
 });
 
+app.post('/register', async (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
+  try {
+    // Check if a user with the same username or email already exists
+    const existingUser = await User.findOne({
+      where: {
+        [Sequelize.Op.or]: [{ Username: username }, { Email: email }],
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({ message: 'Username or email already in use' });
+    }
+
+    // Hash the user's password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user in the database
+    const newUser = await User.create({
+      Username: username,
+      Email: email,
+      Password: hashedPassword,
+    });
+
+    // Log in the new user (you can customize this part according to your authentication flow)
+    req.session.user = {
+      username,
+      userID: newUser.UserID,
+    };
+
+    res.status(201).json({ message: 'Registration successful!' });
+  } catch (error) {
+    console.error('Error registering a new user:', error);
+    res.status(500).json({ message: 'Failed to register a new user' });
+  }
+});
+
 //Logout route.
 app.all('/logout',authenticationMiddleware,async (req, res) => {
   req.session.destroy();
@@ -497,51 +539,6 @@ app.post('/rating/:RecipeID', authenticationMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Failed to post a new rating' });
   }
 });
-
-app.post('/register', async (req, res) => {
-  const { username, email, password } = req.body;
-
-  if (!username || !email || !password) {
-    return res.status(400).json({ message: 'All fields are required' });
-  }
-
-  try {
-    // Check if a user with the same username or email already exists
-    const existingUser = await User.findOne({
-      where: {
-        [Sequelize.Op.or]: [{ Username: username }, { Email: email }],
-      },
-    });
-
-    if (existingUser) {
-      return res.status(400).json({ message: 'Username or email already in use' });
-    }
-
-    // Hash the user's password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create a new user in the database
-    const newUser = await User.create({
-      Username: username,
-      Email: email,
-      Password: hashedPassword,
-    });
-
-    // Log in the new user (you can customize this part according to your authentication flow)
-    req.session.user = {
-      username,
-      userID: newUser.UserID,
-    };
-
-    res.status(201).json({ message: 'Registration successful!' });
-  } catch (error) {
-    console.error('Error registering a new user:', error);
-    res.status(500).json({ message: 'Failed to register a new user' });
-  }
-});
-
-
-
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
