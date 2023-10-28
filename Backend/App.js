@@ -38,7 +38,7 @@ const Sequelize = require('sequelize');
 const sequelize = new Sequelize('tastetales', 'root', '', {
   host: 'localhost',
   dialect: 'mysql',
-  port:3306
+  port:8111
 });
 
 const Recipe = sequelize.define('recipe', {
