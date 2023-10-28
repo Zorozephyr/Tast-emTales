@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Profile - Tast'emTales</title>
+    <link rel="stylesheet" type="text/css" href="css/user.css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body>
+    <div class="navbar">
+      <div class="logo">Taste'em Tales</div>
+      <div class="auth-buttons">
+        <a class="logout-link" href="/logout">Logout</a>
+    </div>
+      
+    </div>
+    <div class="user-profile">
+      <div class="user-info-container">
+        <div class="user-info">
+          <h1 class="user-name"><span id="usernamePlaceholder"></span></h1>
+
+          <div class="user-cards">
+            <a href="favorite-recipes.html" class="user-card">
+              <h3 class="user-card-title">Favorite Recipes</h3>
+              <p class="user-card-number">10</p>
+            </a>
+            <a href="my-recipes.html" class="user-card">
+              <h3 class="user-card-title">My Recipes</h3>
+              <p class="user-card-number">5</p>
+            </a>
+          </div>
+          <div class="user-cards">
+            <a href="recipe.html" class="user-card">
+              <h3 class="user-card-title">Add Recipes</h3>
+              <p class="user-card-edit"></p>
+            </a>
+
+            <a href="edit-profile.html" class="user-card edit-profile">
+              <h3 class="user-card-title">Edit My Profile</h3>
+              <p class="user-card-edit">✎</p>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="../Backend/App.js">
+              document.getElementById('logoutButton').addEventListener('click', function() {
+        // Send a POST request to the /logout endpoint
+        fetch('/logout', {
+          method: 'POST',
+          credentials: 'same-origin', // Include cookies in the request
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Handle the response, e.g., display a message or redirect to another page
+          alert(data.message);
+          window.location.replace('/'); // Redirect to the homepage or another appropriate page
+        })
+        .catch(error => {
+          console.error('Error during logout:', error);
+        });
+      });
+    </script>
+  </body>
+</html>

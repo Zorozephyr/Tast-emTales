@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <title>Login</title>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Taste'em Tales</div>
+        <button class="home-button">Home</button>
+    </div>
+    <form action="/login" method="POST" class="login-form">
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="button-container"> <!-- Add a container div -->
+            <button type="submit" id="login-button">Login</button>
+        </div>
+    </form>
+
+    <!-- Hidden pop-up div for error messages -->
+    <div id="error-popup" class="popup" style="display: none;">
+        <span id="error-message"></span>
+        <button id="close-popup">Close</button>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
+
+            if (response.status === 200) {
+                // Login successful
+                location.reload(); // Refresh the page or redirect to a different page
+            } else {
+                // Display the error message in the pop-up
+                const data = await response.text();
+                document.getElementById('error-message').textContent = data;
+                document.getElementById('error-popup').style.display = 'block';
+            }
+        });
+
+        // Close the error pop-up
+        document.getElementById('close-popup').addEventListener('click', function () {
+            document.getElementById('error-popup').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

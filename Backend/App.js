@@ -1,8 +1,12 @@
 //Password and username is the same but in lowercase
 //10rounds
+const path = require('path'); // Import the path module
+const fs = require('fs');
+// Serve static files from the "frontend" directory
 
 const express = require('express');
 const app = express();
+app.use(express.static(path.join(__dirname, '..', 'Frontend')));
 const port = process.env.PORT || 3000;
 const expressSession = require('express-session');
 const bcrypt = require('bcrypt');
@@ -34,7 +38,7 @@ const Sequelize = require('sequelize');
 const sequelize = new Sequelize('tastetales', 'root', '', {
   host: 'localhost',
   dialect: 'mysql',
-  port:8111
+  port:3306
 });
 
 const Recipe = sequelize.define('recipe', {
@@ -144,6 +148,22 @@ const Recipe = sequelize.define('recipe', {
     timestamps:false,
     tableName:'rating',
   });
+  
+  const Favourites = sequelize.define('favourites', {
+    RecipeID: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+    },
+    UserID: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+    },
+  },{
+    timestamps:false,
+    tableName:'favourites',
+  });
+
+///////////////////////////////////////
 
 
 sequelize
@@ -159,31 +179,56 @@ sequelize
 //Start of Routes
 
 //Login checks for username and email
+app.get('/', (req, res) => {
+  // Send the login.html file as the response
+  res.sendFile(path.join(__dirname, '..', 'Frontend', 'home.html'));
+});
+
 app.post('/login', async (req, res) => {
-  const { username,password } = req.body;
-  console.log(req.body)
-  const user = await User.findOne({ where: { Username:username } });
-  if (!user) {
-    return res.status(404).json({ message: 'User not found.' });
+  const { username, password } = req.body;
+  console.log(req.body);
+  
+  try {
+      const user = await User.findOne({ where: { Username: username } });
+      
+      if (!user) {
+          // User not found, render the login page with an error message
+          return res.status(200).sendFile(path.join(__dirname, '..', 'Frontend', 'login-error-user-not-found.html'));
+      }
+
+      const passwordValid = await bcrypt.compare(password, user.Password);
+      
+      if (!passwordValid) {
+          // Incorrect password, render the login page with an error message
+          return res.status(200).sendFile(path.join(__dirname, '..', 'Frontend', 'login-error-incorrect-password.html'));
+      }
+
+      req.session.user = {
+          username,
+          userID: user.UserID,
+      };
+      
+      res.cookie('session', req.sessionID);
+      const successHtml = fs.readFileSync(path.join(__dirname, '..', 'Frontend', 'user-profile.html'), 'utf8');
+
+        // Replace the placeholder with the username
+        const updatedHtml = successHtml.replace('<span id="usernamePlaceholder"></span>', user.Username);
+
+        // Send the updated HTML to the client
+        res.status(200).send(updatedHtml);
+  } catch (error) {
+      console.error('Error during login:', error);
+      // Handle the error or return an error response
+      return res.status(500).json({ message: 'Internal server error' });
   }
-  const passwordValid = await bcrypt.compare(password, user.Password);
-  if (!passwordValid) {
-    return res.status(401).json({ message: 'Incorrect password.' });
-  }
-  req.session.user = {
-    username,
-    userID:user.UserID,
-  };
-  res.cookie('session', req.sessionID);
-  res.json({ message: 'Login successful!' });
 });
 
 //Logout route.
-app.post('/logout',authenticationMiddleware,async (req, res) => {
+app.all('/logout',authenticationMiddleware,async (req, res) => {
   req.session.destroy();
   // Clear the user's browser cache.
   res.clearCookie('session');
-  res.json({ message: 'Successfully LoggedOut!' });
+  res.redirect('/')
 });
 
 //Recipe Search
