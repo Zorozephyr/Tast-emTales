@@ -38,7 +38,7 @@ const Sequelize = require('sequelize');
 const sequelize = new Sequelize('tastetales', 'root', '', {
   host: 'localhost',
   dialect: 'mysql',
-  port:8111
+  port:3306
 });
 
 const Recipe = sequelize.define('recipe', {
@@ -337,7 +337,7 @@ app.post('/recipe',authenticationMiddleware,async (req, res) => {
     const newRecipe=await Recipe.create({
       Title,Ingredients,HowToCook,Cuisine,UserID
     });
-    res.status(201).json(newRecipe);
+    res.redirect('/recipe.html?success=true');
   }
   catch(error){
     console.error('Error creating a new recipe:', error);

@@ -1,9 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="stylesheet" type="text/css" href="css/recipe.css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
     <title>Add New Recipe</title>
 </head>
 <body>
+    <div class="success-popup" id="successPopup">
+        <p class="success-popup-message">New recipe successfully added!</p>
+        <span class="close-button" onclick="closePopup()">Close</span>
+    </div>
+
+    <script>
+        // Function to get URL parameters
+        function getQueryParam(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+        function closePopup() {
+            var successPopup = document.getElementById('successPopup');
+            if (successPopup) {
+                successPopup.style.display = 'none';
+            }
+        }
+        // Check if the URL contains a success parameter
+        if (getQueryParam('success') === 'true') {
+            // Display the pop-up
+            var successPopup = document.getElementById('successPopup');
+            if (successPopup) {
+                successPopup.style.display = 'block';
+            }
+        }
+    </script>
+    <div class="navbar">
+        <div class="logo">Taste'em Tales</div>
+        <div class="auth-buttons">
+          <a class="logout-link" href="/logout">Logout</a>
+      </div>
+      </div>
     <h1>Add New Recipe</h1>
     <form action="/recipe" method="POST">
         <label for="Title">Title:</label>
