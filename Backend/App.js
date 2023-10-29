@@ -5,6 +5,7 @@ const fs = require('fs');
 // Serve static files from the "frontend" directory
 
 const express = require('express');
+const methodOverride = require('method-override');
 const app = express();
 app.use(express.static(path.join(__dirname, '..', 'Frontend')));
 const port = process.env.PORT || 3000;
@@ -23,6 +24,7 @@ const sessionMiddleware = expressSession({
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(sessionMiddleware);
+app.use(methodOverride('_method'));
 
 "MiddleWare to check authentication"
 const authenticationMiddleware = (req, res, next) => {
@@ -38,7 +40,7 @@ const Sequelize = require('sequelize');
 const sequelize = new Sequelize('tastetales', 'root', '', {
   host: 'localhost',
   dialect: 'mysql',
-  port:3306
+  port:8111
 });
 
 const Recipe = sequelize.define('recipe', {
@@ -537,6 +539,37 @@ app.post('/rating/:RecipeID', authenticationMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Error posting a new rating:', error);
     res.status(500).json({ message: 'Failed to post a new rating' });
+  }
+});
+
+app.put('/editprofile', async (req, res) => {
+  const { username, email, password } = req.body;
+  const userID = req.session.user.userID;
+
+  try {
+    const user = await User.findByPk(userID);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found.' });
+    }
+
+    if (username) {
+      user.Username = username;
+    }
+    if (email) {
+      user.Email = email;
+    }
+
+    if (password) {
+      user.Password = password;
+    }
+
+    await user.save();
+
+    res.json({ message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Error updating the profile details:', error);
+    res.status(500).json({ message: 'Failed to update the user profile' });
   }
 });
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - Tast'emTales</title>
+    <link rel="stylesheet" type="text/css" href="css/styles.css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Taste'em Tales</div>
+        <div class="auth-buttons">
+            <a class="logout-link" href="/logout">Logout</a>
+        </div>
+    </div>
+    <form action="/editprofile?_method=PUT" method="POST" class="login-form">
+        <input type="hidden" name="_method" value="PUT">
+    <div class="user-profile">
+        <div class="user-info-container">
+            <div class="user-info">
+                <h1 class="user-name">Edit Your Profile</h1>
+
+                <form id="edit-profile-form">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username.." required>
+                    
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" placeholder="Enter new email ID to change/ Enter old email ID.." required>
+
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" placeholder="Enter new password change/ Enter previous password.." required>
+
+                    <label for="password">Re-enter Password:</label>
+                    <input type="password" id="repassword" name="repassword" placeholder="Re-enter password.." required>
+
+                    <!-- Add more fields for editing user profile information -->
+                    <button type="submit">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    </form>
+</body>
+</html>
