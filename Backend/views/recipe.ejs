@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Page - Tast'emTales</title>
+    <link rel="stylesheet" type="text/css" href="styles/styles.css">
+</head>
+<body>
+    <div class="recipe">
+        <h1 class="recipe-title"><%= recipe.Title %></h1>
+        <h2 class="author-name">Author: <%= recipe.UserID %></h2>
+        
+        <div class="recipe-actions">
+            <button id="ratebutton" class="rate-button">Rate</button>
+            <button id="commentbutton" class="comment-button">Comment</button>
+        </div>
+
+        <div id="ratepopup" class="popup">
+            <div class="popup-content">
+                <span class="close-button" id="close-button">&times;</span>
+                <h2>Rate</h2>
+                <form id="rateform">
+                    <label for="rating">Rating:</label>
+                    <input type="number" id="rating" name="rating" min="1" max="5" required>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="commentpopup" class="popup">
+            <div class="popup-content">
+                <span class="close-button" id="close-button">&times;</span>
+                <h2>Comment</h2>
+                <form id="commentform">
+                    <label for="comment">Comment:</label>
+                    <textarea id="comment" name="comment" rows="4"></textarea>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="recipe-ingredients">
+            <h3>Ingredients</h3>
+            <ul>
+                <% recipe.Ingredients.split(', ').forEach(ingredient => { %>
+                    <li><%= ingredient %></li>
+                <% }); %>
+            </ul>
+        </div>
+        <div class="recipe-procedure">
+            <h3>Procedure</h3>
+            <ol type="1">
+                <% recipe.HowToCook.split('\n').forEach(step => { %>
+                    <li><%= step %></li>
+                <% }); %>
+            </ol>
+        </div>
+    </div>
+</body>
+</html>

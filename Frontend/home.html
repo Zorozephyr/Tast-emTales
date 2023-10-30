@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tast'emTales</title>
-    <link rel="stylesheet" type="text/css" href="css/home.css">
+    <link rel="stylesheet" type="text/css" href="styles/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     
@@ -20,11 +21,15 @@
     <div class="background">
         <div class="search-form">
             
-            <form>
+            <form action="/search" method="POST">
                 <div class="search-container">
-                <input type="text" placeholder="Search Recipes">
+                <input type="text" name="searchSentence" placeholder="Search Recipes">
                 
-                <button type="submit">&#128269;</button>
+                <button class="search-button" type = "submit">
+                    <div class="circle">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </button>
                 </div>
             </form>
         
@@ -34,7 +39,18 @@
         
     </div>
 
-   
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchForm = document.querySelector(".search-form");
+            searchForm.style.display = "block"; // Ensure it's initially visible
+            searchForm.style.opacity = 0;
+            searchForm.style.transform = "translateY(-20px)";
+            setTimeout(function() {
+                searchForm.style.opacity = 1;
+                searchForm.style.transform = "translateY(0)";
+            }, 100);
+        });
+    </script>
 
 </body>
 </html>

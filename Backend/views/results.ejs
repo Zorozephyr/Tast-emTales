@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Tast'emTales</title>
+    <link rel="stylesheet" type="text/css" href="styles/styles.css">
+</head>
+<body>
+    <h1 style="font-family: 'DM Sans', sans-serif" id="search-results-count">Search Results </h1>
+    
+    <div class="results">
+        <% recipes.forEach(recipe => { %>
+            <a href="/recipe/<%= recipe.RecipeID %>">
+                <div class="result-card">
+                  <div class="result-image" style="background-image: url('<%= recipe.imageURL %>');"></div>
+                  <h2 class="result-title"><%= recipe.Title %></h2>
+                  <p class="result-description"><%= recipe.Cuisine %></p>
+                </div>
+              </a>
+        <% }); %>
+    </div>
+</body>
+</html>

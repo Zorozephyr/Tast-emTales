@@ -25,7 +25,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(sessionMiddleware);
 app.use(methodOverride('_method'));
-
+app.set('view engine', 'ejs');
+app.use(express.static(__dirname + '/public'));
 "MiddleWare to check authentication"
 const authenticationMiddleware = (req, res, next) => {
   if (!req.session.user) {
@@ -279,6 +280,8 @@ app.all('/logout',authenticationMiddleware,async (req, res) => {
 app.post('/search', async (req, res) => {
   // Parse the request body to get the searchSentence.
   let { searchSentence,cuisine } = req.body;
+
+  console.log(searchSentence);
   if(!searchSentence){
     searchSentence="";
   }
@@ -323,7 +326,8 @@ app.post('/search', async (req, res) => {
 
   // Execute the query and return the results to the client.
   const recipes = await Recipe.findAll({ where: whereClause });
-  res.json(recipes);
+  res.render('results', { recipes });
+  //res.json(recipes);
 });
 
 //Post New Recipe
@@ -408,9 +412,9 @@ app.delete('/recipe/:RecipeID', authenticationMiddleware, async (req, res) => {
   }
 });
 
-//Get a particular recipe for show page
 app.get('/recipe/:RecipeID',async(req, res) => {
   const { RecipeID } = req.params;
+  console.log(RecipeID);
   try {
     // Find the recipe with the given RecipeID and include the associated user (if any)
     const recipe = await Recipe.findOne({
@@ -421,16 +425,18 @@ app.get('/recipe/:RecipeID',async(req, res) => {
       return res.status(404).json({ message: 'Recipe not found.' });
     }
 
-    const user=await User.findOne({
-      where:{UserID:recipe.UserID}
-    });
+    // const user=await User.findOne({
+    //   where:{UserID:recipe.UserID}
+    // });
+    res.render('recipe',{ recipe});
 
-    res.json({...recipe.dataValues,Username:user.Username});
+    //res.json({...recipe.dataValues,Username:user.Username});
   } catch (error) {
     console.error('Error retrieving the recipe:', error);
     res.status(500).json({ message: 'Failed to retrieve the recipe' });
   }
 });
+
 
 // Retrieve all comments for a specific recipe by RecipeID and include the associated usernames
 app.get('/comments/:RecipeID', async (req, res) => {
