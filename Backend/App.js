@@ -2,6 +2,7 @@
 //10rounds
 const path = require('path'); // Import the path module
 const fs = require('fs');
+const cheerio = require('cheerio');
 // Serve static files from the "frontend" directory
 
 const express = require('express');
@@ -26,7 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(sessionMiddleware);
 app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(path.join(__dirname, 'public')));
 "MiddleWare to check authentication"
 const authenticationMiddleware = (req, res, next) => {
   if (!req.session.user) {
@@ -41,7 +42,7 @@ const Sequelize = require('sequelize');
 const sequelize = new Sequelize('tastetales', 'root', '', {
   host: 'localhost',
   dialect: 'mysql',
-  port:8111
+  port:3306
 });
 
 const Recipe = sequelize.define('recipe', {
@@ -132,6 +133,7 @@ const Recipe = sequelize.define('recipe', {
   });
   
   Comment.belongsTo(User, { as: 'users', foreignKey: 'UserID' });
+  Recipe.belongsTo(User, { as: 'users', foreignKey: 'UserID' });
   
 
   const Rating = sequelize.define('rating', {
@@ -184,7 +186,19 @@ sequelize
 //Login checks for username and email
 app.get('/', (req, res) => {
   // Send the login.html file as the response
-  res.sendFile(path.join(__dirname, '..', 'Frontend', 'home.html'));
+ 
+  if(!req.session.user)res.sendFile(path.join(__dirname, '..', 'Frontend', 'home.html'));
+  else res.sendFile(path.join(__dirname, '..', 'Frontend', 'home_log.html'));
+});
+
+
+app.get('/about', (req, res) => {
+  // Send the login.html file as the response
+ 
+  const userIsSignedIn = !req.session.user ? false : true;
+
+  res.render('about', { userIsSignedIn: userIsSignedIn});
+  
 });
 
 app.post('/login', async (req, res) => {
@@ -212,13 +226,8 @@ app.post('/login', async (req, res) => {
       };
       
       res.cookie('session', req.sessionID);
-      const successHtml = fs.readFileSync(path.join(__dirname, '..', 'Frontend', 'user-profile.html'), 'utf8');
-
-        // Replace the placeholder with the username
-        const updatedHtml = successHtml.replace('<span id="usernamePlaceholder"></span>', user.Username);
-
-        // Send the updated HTML to the client
-        res.status(200).send(updatedHtml);
+      
+      res.redirect('/profile');
   } catch (error) {
       console.error('Error during login:', error);
       // Handle the error or return an error response
@@ -242,7 +251,18 @@ app.post('/register', async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({ message: 'Username or email already in use' });
+      const successHtml = fs.readFileSync(path.join(__dirname, '..', 'Frontend', 'register.html'), 'utf8');
+
+      // Replace the placeholder with the username
+      const $ = cheerio.load(successHtml);
+
+      // Find the <p> element with id "usernamePlaceholder" and replace its content
+    ; // Replace this with the text you want to add
+      $('#ErrorPlaceholder').text("Username or Email already exists");
+      const modifiedHtml = $.html();
+      
+
+      return res.status(200).send(modifiedHtml);
     }
 
     // Hash the user's password
@@ -261,7 +281,8 @@ app.post('/register', async (req, res) => {
       userID: newUser.UserID,
     };
 
-    res.status(201).json({ message: 'Registration successful!' });
+    res.status(201).redirect('/');
+    
   } catch (error) {
     console.error('Error registering a new user:', error);
     res.status(500).json({ message: 'Failed to register a new user' });
@@ -325,9 +346,28 @@ app.post('/search', async (req, res) => {
   }
 
   // Execute the query and return the results to the client.
+  const userIsSignedIn = !req.session.user ? false : true;
   const recipes = await Recipe.findAll({ where: whereClause });
-  res.render('results', { recipes });
+  res.render('results', { recipes, userIsSignedIn: userIsSignedIn });
   //res.json(recipes);
+});
+
+app.get('/recipes/my-recipes', authenticationMiddleware, async (req, res) => {
+  const userID = req.session.user.userID;
+  console.log(userID)
+
+  try {
+    // Find all recipes authored by the current user
+    const userRecipes = await Recipe.findAll({
+      where: { UserID: userID },
+    });
+    const userIsSignedIn = !req.session.user ? false : true;
+
+    res.render('myrecipes', {recipes:userRecipes, userIsSignedIn: userIsSignedIn});
+  } catch (error) {
+    console.error('Error retrieving user recipes:', error);
+    res.status(500).json({ message: 'Failed to retrieve user recipes' });
+  }
 });
 
 //Post New Recipe
@@ -393,7 +433,7 @@ app.put('/recipe/:RecipeID',authenticationMiddleware,async (req, res) => {
 app.delete('/recipe/:RecipeID', authenticationMiddleware, async (req, res) => {
   const { RecipeID } = req.params;
   const userID = req.session.user.userID; // Assuming you have user authentication in place
-
+  
   try {
     // Check if the recipe with the given recipeId exists and is associated with the logged-in user
     const recipe = await Recipe.findOne({ where: { RecipeID: RecipeID, UserID: userID } });
@@ -412,23 +452,56 @@ app.delete('/recipe/:RecipeID', authenticationMiddleware, async (req, res) => {
   }
 });
 
+//Display recipe page
 app.get('/recipe/:RecipeID',async(req, res) => {
   const { RecipeID } = req.params;
-  console.log(RecipeID);
   try {
     // Find the recipe with the given RecipeID and include the associated user (if any)
     const recipe = await Recipe.findOne({
       where: { RecipeID: RecipeID },
     });
 
+    
+
     if (!recipe) {
       return res.status(404).json({ message: 'Recipe not found.' });
     }
 
-    // const user=await User.findOne({
-    //   where:{UserID:recipe.UserID}
-    // });
-    res.render('recipe',{ recipe});
+    const authorUser = await User.findOne({
+      where: { UserID: recipe.UserID },
+      attributes: ['Username'],
+    });
+
+    var commentsData = [];
+    try {
+      // Find all comments for the given RecipeID and include the associated user's username
+      const comments = await Comment.findAll({
+        where: { RecipeID: RecipeID },
+        include: [
+          {
+            model: User,
+            as: 'users', // Alias for the User model
+            attributes: ['Username'], // Include only the 'Username' field from the User model
+          },
+        ],
+      });
+  
+      const processedComments = comments.map(comment => ({
+        CommentID: comment.CommentID,
+        CommentText: comment.CommentText,
+        RecipeID: comment.RecipeID,
+        UserID: comment.UserID,
+        Username: comment.users.Username,
+      }));
+  
+      commentsData = processedComments;
+  
+    } catch (error) {
+      console.error('Error retrieving comments:', error);
+      //res.status(500).json({ message: 'Failed to retrieve comments' });
+    }
+    const isAuthenticated = req.session.user ? true : false;
+    res.render('recipe',{ recipe, comments: commentsData, Author: authorUser.Username, isAuthenticated: isAuthenticated});
 
     //res.json({...recipe.dataValues,Username:user.Username});
   } catch (error) {
@@ -436,6 +509,7 @@ app.get('/recipe/:RecipeID',async(req, res) => {
     res.status(500).json({ message: 'Failed to retrieve the recipe' });
   }
 });
+
 
 
 // Retrieve all comments for a specific recipe by RecipeID and include the associated usernames
@@ -515,6 +589,7 @@ app.get('/rating/:RecipeID', async (req, res) => {
   }
 });
 
+
 app.post('/rating/:RecipeID', authenticationMiddleware, async (req, res) => {
   const UserID = req.session.user.userID;
   const { ReqRating } = req.body;
@@ -531,7 +606,7 @@ app.post('/rating/:RecipeID', authenticationMiddleware, async (req, res) => {
     });
 
     if (existingRating) {
-      return res.status(400).json({ message: 'You have already rated this recipe' });
+      return res.status(405).json({ message: 'You have already rated this recipe' });
     }
 
     // Create a new rating for the recipe
@@ -577,6 +652,27 @@ app.put('/editprofile', async (req, res) => {
     console.error('Error updating the profile details:', error);
     res.status(500).json({ message: 'Failed to update the user profile' });
   }
+});
+
+app.get('/profile', (req, res) => {
+  
+  const userIsSignedIn = !req.session.user ? false : true;
+  if(userIsSignedIn) {
+    const successHtml = fs.readFileSync(path.join(__dirname, '..', 'Frontend', 'user-profile.html'), 'utf8');
+
+        // Replace the placeholder with the username
+        const $ = cheerio.load(successHtml);
+
+        // Find the <p> element with id "usernamePlaceholder" and replace its content
+      ; // Replace this with the text you want to add
+        $('#usernamePlaceholder').text(req.session.user.username);
+        const modifiedHtml = $.html();
+        res.status(200).send(modifiedHtml);
+  } else {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  
+
 });
 
 app.listen(port, () => {

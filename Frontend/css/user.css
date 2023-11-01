@@ -6,38 +6,41 @@ body {
     margin: 0;
 }
 .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background-color: #333; /* Blackish grey background color */
-    color: #fff; /* White text color */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-}
-.navbar .auth-buttons {
-    display: flex;
-    gap: 10px;
+    background-color: rgb(242, 242, 213);
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    padding: 0px 0px; /* Increase the top and bottom padding */
 }
 
 .navbar a {
+    float: right;
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 24px 24px; /* Increase the padding for each link */
     text-decoration: none;
-    color: #fff;
-    padding: 5px 10px;
-    align-items: right;
-    background-color: #4CAF50; /* Green background color */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px; /* Increase the font size */
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: rgb(57, 57, 57);
+}
+
+.navbar .title {
+    float: left;
+    padding: 20px 24px; /* Increase the padding for the title */
+    color: black;
+    font-weight: bold;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 28px; /* Increase the font size for the title */
 }
 
 .logo {
     font-size: 24px;
     margin-left: 20px;
-    font-family: 'Arial', sans-serif; /* Choose a prettier font */
+    font-family: 'DM Sans', sans-serif; /* Choose a prettier font */
 }
 
 .user-profile {
@@ -98,6 +101,12 @@ body {
     padding: 20px;
     width: 150px;
     text-decoration: none;
+}
+
+.user-card-title-card {
+    background: transparent;
+    color: beige;
+    border: 3px solid beige; /* Add this line to set a beige border */
 }
 
 .user-card-title {

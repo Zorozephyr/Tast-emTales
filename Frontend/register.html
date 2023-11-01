@@ -6,8 +6,11 @@
 </head>
 <body>
     <div class="navbar">
-        <div class="logo">Taste'em Tales</div>
-        <a href="home.html">Home</a>
+        <div class="title">Tast'emTales</div>
+        <div class="auth-buttons">
+            <a href="/about">About</a>
+            <a href="/">Home</a>
+        </div>
     </div>
     <form action="/register" method="POST" class="login-form">
         <div>
@@ -23,9 +26,11 @@
             <input type="password" id="password" name="password" required>
         </div>
         <div class="button-container"> <!-- Add a container div -->
-            <button type="submit" id="login-button">Signup</button>
+            <button id="login-button">Signup</button>
         </div>
+        <h3 id="ErrorPlaceholder"> <h3> 
     </form>
+    
 
     <!-- Hidden pop-up div for error messages -->
     <div id="error-popup" class="popup" style="display: none;">
@@ -48,16 +53,20 @@
                 },
                 body: JSON.stringify({ username, email, password }),
             });
-
-            if (response.status === 200) {
-                // Login successful
-                location.reload(); // Refresh the page or redirect to a different page
+            
+            if (response.status === 201) {
+                // Registration successful
+                alert('Registration Successful');
+            
+                // Redirect to the route handled by app.get('/')
+                location.reload();
             } else {
                 // Display the error message in the pop-up
                 const data = await response.text();
                 document.getElementById('error-message').textContent = data;
                 document.getElementById('error-popup').style.display = 'block';
             }
+            
         });
 
         // Close the error pop-up

@@ -1,61 +1,56 @@
+ body {
+            margin: 0;
+            padding: 0;
+            font-family: 'DM Sans', sans-serif;
+        }
 /* CSS for the navigation bar */
-body{
-    margin: 0;
-    padding: 0;
-}
 .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background-color: #333; /* Blackish grey background color */
-    color: #fff; /* White text color */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-}
-
-.navbar .title {
-    font-size: 24px;
-}
-.navbar .auth-buttons {
-    display: flex;
-    gap: 10px;
+    background-color: rgb(242, 242, 213);
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    padding: 0px 0px; /* Increase the top and bottom padding */
 }
 
 .navbar a {
+    float: right;
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 24px 24px; /* Increase the padding for each link */
     text-decoration: none;
-    color: #fff;
-    padding: 5px 10px;
-    align-items: right;
-    background-color: #4CAF50; /* Green background color */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-right: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px; /* Increase the font size */
 }
-.logo {
-    font-size: 24px;
-    margin-left: 20px;
-    font-family: 'Arial', sans-serif; /* Choose a prettier font */
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: rgb(57, 57, 57);
+}
+
+.navbar .title {
+    float: left;
+    padding: 20px 24px; /* Increase the padding for the title */
+    color: black;
+    font-weight: bold;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 28px; /* Increase the font size for the title */
 }
 
 .background {
-    background-image: url('login.jpg'); /* Replace with your image file path */
+    background-image: url('bg.png'); /* Replace with your image file path */
     background-size: cover;
+    background-position: center;
     background-repeat: no-repeat;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     height: 100vh;
-    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .search-form {
-    /* background: rgba(255, 255, 255, 0.8); */
-    padding: 20px;
-    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 40px;
+    border-radius: 40px;
     text-align: center;
     display: none;
     opacity: 0;
@@ -106,7 +101,12 @@ body{
 .search-form p {
     padding:0;
     font-family: 'DM Sans', sans-serif;
-    font-size: 10px; /* Use the 'DM Sans' font */
+    font-size: 12px; /* Use the 'DM Sans' font */
+}
+
+.search-results-count {
+    font-family: 'DM Sans', sans-serif;
+    padding-left: 20px; /* Adjust the value to add the desired padding to the left */
 }
 
 .results {
@@ -119,23 +119,24 @@ body{
 
 .result-card {
     border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 0px;
     width: 300px;
     text-align: center;
 }
 
 .result-image {
-    background-size: cover;
+    background-size: cover; /* This scales the image to cover the whole container */
     background-position: center;
-    height: 200px; /* Adjust the height as needed */
-    border-radius: 5px;
+    height: 250px; /* Adjust the height as needed */
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 }
 
 .result-title {
     font-size: 24px;
-    margin: 10px 0;
+    margin: 15px 0;
     font-family: 'DM Sans', sans-serif;
 }
 
@@ -147,18 +148,25 @@ body{
 
 .recipe {
     text-align: center;
-    padding: 20px;
+    padding: 0px;
     font-family: 'DM Sans', sans-serif;
 }
 
 .recipe-title {
     font-size: 32px;
-    margin: 10px 0;
+    margin-top: 250px;
+    position: absolute; /* Set the position to absolute to place it on top */
+    top: 0;
+    left: 0;
+    width: 100%; /* Make it span the entire width */
+    padding: 20px; /* Adjust padding as needed */
+    z-index: 1;
     font-family: 'DM Sans', sans-serif;
 }
 
 .author-name {
     font-size: 18px;
+    margin-top: 260px;
     color: #888;
     margin: 10px 0;
     font-family: 'DM Sans', sans-serif;
@@ -302,28 +310,7 @@ body{
     font-size: 24px;
 }
 
-.popup {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 1;
-    text-align: center;
-}
 
-.popup-content {
-    background: #fff;
-    border-radius: 5px;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-}
 
 .close-button {
     position: absolute;
@@ -380,4 +367,241 @@ a {
 i {
     font-size: 21px;
     color: rgb(82, 82, 82);
+}
+
+/* Add CSS styles to format the comments section */
+
+.collapsible-button {
+    background: beige; /* Set the button color to orange */
+    margin: 10px 130px;
+    color: orange;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    border-color: orange;
+    border-width: 5px;
+    cursor: pointer;
+    border-radius: 20px;
+}
+
+.recipe-comments {
+    margin-top: 20px;
+    border-top: 0px solid #ccc;
+    padding-top: 20px;
+}
+
+.comment-list {
+    list-style-type: none;
+    padding: 0;
+    padding-left: 20px;
+}
+
+.comment {
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+    padding: 10px;
+    text-align: left;
+    display: flex; /* Use flexbox to align avatar and comment content */
+    border-bottom: 1px solid #ccc;
+}
+
+.avatar {
+    width: 40px; /* Adjust the size of the avatar */
+    height: 40px;
+    background-color: #ccc; /* Grey color for the avatar */
+    border-radius: 50%; /* Make it circular */
+    margin-right: 10px; /* Add some spacing between avatar and comments */
+}
+
+.comment-content {
+    flex: 1; /* Grow to fill available space */
+}
+
+.comment-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.comment-username {
+    color: #3366cc;
+}
+
+.comment-text {
+    /* No need for margin-left */
+}
+
+
+/* Style the comment header and text */
+.comment-header, .comment-text {
+    line-height: 1.4;
+}
+
+.margin {
+    margin-top: 20px; /* Adjust the value to set the desired space */
+}
+
+.filler {
+    background-color: #ccc; /* Set the background color of the rectangle */
+    background-image: url('bg.png');
+    height: 300px; /* Adjust the height as needed */
+    width: 100%; /* Make it span the entire width */
+}
+
+/* Base styles for all popups */
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3); /* Semi-transparent black background */
+    z-index: 1000; /* Ensure it's on top of other content */
+    display: none; /* Initially hidden */
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 80%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    z-index: 1000;;
+    width: 100%;
+    height: 100%;
+}
+
+.popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    font-family: "DM Sans", sans-serif;
+}
+
+/* Close button style */
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Comment popup styles */
+#commentPopup {
+    width: 50%;
+}
+
+#ratepopup {
+    width: 50%;
+}
+
+
+  
+  /* Popup content */
+  .popup-content {
+    background-color: #fff;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    border-radius: 5px;
+    width: 60%;
+    background: rgba(213, 213, 213, 0.1);
+    border: 1px solid rgb(114, 114, 114);
+    gap: 24px;
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    position: relative;
+  }
+  
+  /* Close button */
+  .close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  
+  /* Textarea styles */
+  textarea {
+    width: 100%;
+    resize: none;
+  }
+  
+  /* Submit button styles */
+  #submitCommentButton {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: orange;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  #submitCommentButton:hover {
+    background-color: #0056b3;
+  }
+
+
+  :root {
+    --star-size: 40px;
+    --star-color: rgb(215, 215, 215);
+    --star-background: orange;
+  }
+  
+  .Stars {
+    --percent: calc(var(--rating) / 5 * 100%);
+    
+    display: inline-block;
+    font-size: var(--star-size);
+    font-family: Times; // make sure ★ appears correctly
+    line-height: 1;
+    margin-left: auto; /* Add this line to push the ratings to the right */
+
+    
+    &::before {
+      content: '★★★★★';
+      letter-spacing: 3px;
+      background: linear-gradient(90deg, var(--star-background) var(--percent), var(--star-color) var(--percent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+  
+  // Just to make a preview more beautifull
+  
+  body {
+    background: #eee;
+    display: flex;
+    justify-content: right;
+    align-items: right;
+    height: 100vh;
+  }
+  
+  * {
+    position: relative;
+    box-sizing: border-box;
+  }
+  
+
+.about-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.about-content {
+    width: 100%;
+    height: 30%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgb(114, 114, 114);
+    gap: 24px;
+    backdrop-filter: blur(10px);
+    border-radius: 25px;
+    padding: 20px;
+    
 }

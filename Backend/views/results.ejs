@@ -4,16 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results - Tast'emTales</title>
-    <link rel="stylesheet" type="text/css" href="styles/styles.css">
+    <link rel="stylesheet" type="text/css" href="/styles/styles.css">
 </head>
 <body>
-    <h1 style="font-family: 'DM Sans', sans-serif" id="search-results-count">Search Results </h1>
+    <%- include('navbar', { userIsSignedIn: userIsSignedIn }) %>
+    <h1 class="search-results-count" style="font-family: 'DM Sans', sans-serif" id="search-results-count"><%= recipes.length %> Search Result(s) </h1>
     
     <div class="results">
         <% recipes.forEach(recipe => { %>
             <a href="/recipe/<%= recipe.RecipeID %>">
                 <div class="result-card">
-                  <div class="result-image" style="background-image: url('<%= recipe.imageURL %>');"></div>
+                  <div class="result-image" style="background-image: url('https://source.unsplash.com/300x300/?<%= recipe.Title.split(' ').pop() %>');"></div>
                   <h2 class="result-title"><%= recipe.Title %></h2>
                   <p class="result-description"><%= recipe.Cuisine %></p>
                 </div>

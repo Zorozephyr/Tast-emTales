@@ -4,41 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipe Page - Tast'emTales</title>
-    <link rel="stylesheet" type="text/css" href="styles/styles.css">
+    <link rel="stylesheet" type="text/css" href="/styles/styles.css">
 </head>
 <body>
+    <%- include('navbar', { userIsSignedIn: isAuthenticated }) %>
+    <div id="recipeiddiv" data-test=<%= recipe.RecipeID %>></div>
     <div class="recipe">
+        <div class="filler">
+            <!-- Content of the rectangle -->
+        </div>
+        <div class="Stars" id="ratingdisplay" style="--rating: 0;" aria-label="Rating of this product is 2.3 out of 5;"></div>
         <h1 class="recipe-title"><%= recipe.Title %></h1>
-        <h2 class="author-name">Author: <%= recipe.UserID %></h2>
-        
+        <h2 class="author-name">by <%= Author %></h2>
+
         <div class="recipe-actions">
             <button id="ratebutton" class="rate-button">Rate</button>
-            <button id="commentbutton" class="comment-button">Comment</button>
+            <button id="openPopupButton" class="comment-button">Comment</button>
         </div>
 
-        <div id="ratepopup" class="popup">
-            <div class="popup-content">
-                <span class="close-button" id="close-button">&times;</span>
-                <h2>Rate</h2>
-                <form id="rateform">
-                    <label for="rating">Rating:</label>
-                    <input type="number" id="rating" name="rating" min="1" max="5" required>
-                    <button type="submit">Submit</button>
-                </form>
-            </div>
-        </div>
-
-        <div id="commentpopup" class="popup">
-            <div class="popup-content">
-                <span class="close-button" id="close-button">&times;</span>
-                <h2>Comment</h2>
-                <form id="commentform">
-                    <label for="comment">Comment:</label>
-                    <textarea id="comment" name="comment" rows="4"></textarea>
-                    <button type="submit">Submit</button>
-                </form>
-            </div>
-        </div>
+        
 
         <div class="recipe-ingredients">
             <h3>Ingredients</h3>
@@ -56,6 +40,195 @@
                 <% }); %>
             </ol>
         </div>
+
+        <div class="recipe-comments-collapsible">
+            <button class="collapsible-button" onclick="toggleComments()">Hide Comments</button>
+            <div class="recipe-comments">
+                <ul class="comment-list">
+                    <% comments.forEach(comment => { %>
+                        <li class="comment">
+                            <div class="avatar"></div> <!-- Grey circle for user avatar -->
+                            <div class="comment-content">
+                                <div class="comment-header">
+                                    <strong class="comment-username"><%= comment.Username %></strong>
+                                </div>
+                                <div class="comment-text">
+                                    <%= comment.CommentText %>
+                                </div>
+                            </div>
+                        </li>
+                    <% }); %>
+                </ul>
+            </div>
+        </div>
+        
+        
     </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="popup" id="commentPopup">
+        <div class="popup-content">
+          <span class="close" id="closePopup">&times;</span>
+          <h2>Add a Comment</h2>
+          <textarea id="commentText" rows="4" placeholder="Enter your comment"></textarea>
+          <button id="submitCommentButton">Submit Comment</button>
+        </div>
+    </div>
+
+    <div id="ratepopup" class="popup">
+        <div class="popup-content">
+            <span class="close-button" id="closerate">&times;</span>
+            <h2>Rate</h2>
+            <form id="rateform">
+                <label for="rating">Rating:</label>
+                <input type="number" id="ratingformvalue" name="rating" min="1" max="5" required>
+                <button type="submit" id="submit-rating">Submit</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        var RecipeID = document.getElementById('recipeiddiv').dataset.test;
+        document.addEventListener("DOMContentLoaded", function () {
+            
+    
+            fetch(`/rating/${RecipeID}`)
+                .then(response => response.json())
+                .then(data => {
+                    const averageRatingElement = document.getElementById("ratingdisplay");
+                    if (data.averageRating) {
+                        
+                        averageRatingElement.style = "--rating: " + data.averageRating + ";";
+                    } else {
+                        averageRatingElement.value = 0; // Set a default value if there are no ratings
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching average rating:', error);
+                });
+        });
+    
+    var commentsSection = document.querySelector('.recipe-comments');
+    commentsSection.style.display = 'block';
+    function toggleComments() {
+        
+        var commentsButton = document.querySelector('.collapsible-button');
+        if (commentsSection.style.display === 'none' || commentsSection.style.display === '') {
+            commentsSection.style.display = 'block';
+            commentsButton.innerHTML= 'Hide Comments'
+        } else {
+            commentsSection.style.display = 'none';
+            commentsButton.innerHTML= 'View Comments'
+        }
+    }
+
+
+    // Get the button and popup elements
+    const ratebutton = document.getElementById("ratebutton");
+    const ratepopup = document.getElementById("ratepopup");
+
+    // Show the popup when the button is clicked
+    ratebutton.addEventListener("click", function() {
+    ratepopup.style.display = "block";
+    document.getElementById('overlay').style.display = 'block';
+    });
+
+    // Close the popup when the close button is clicked
+    const closerate = document.getElementById("closerate");
+    closerate.addEventListener("click", function() {
+    ratepopup.style.display = "none";
+    document.getElementById('overlay').style.display = 'none';
+    });
+
+    const submitButton = document.getElementById("submit-rating");
+  submitButton.addEventListener("click", async function () {
+
+    // Get the value of the input element
+    const ratingValue = document.getElementById("ratingformvalue").value;
+
+    if (!ratingValue) {
+        alert("Rating cannot be empty");
+        return;
+    }
+
+    const response = await fetch(`/rating/${RecipeID}`, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ ReqRating: ratingValue })
+    });
+
+    if (response.status === 201) {
+        // Comment added successfully, you can update the UI as needed
+        ratepopup.style.display = "none";
+        location.reload();
+    }
+    else if (response.status === 405) {
+        // Comment added successfully, you can update the UI as needed
+        window.location.href = '/recipe/' + RecipeID;
+        alert("You have already rated this recipe");
+    } else {
+        window.location.href = '/recipe/' + RecipeID;
+        alert("Error rating. Check authentication.");
+        
+    }
+
+
+    
+  });
+
+    // Get the button and popup elements
+    const openPopupButton = document.getElementById("openPopupButton");
+    const commentPopup = document.getElementById("commentPopup");
+
+    // Show the popup when the button is clicked
+    openPopupButton.addEventListener("click", function() {
+    commentPopup.style.display = "block";
+    document.getElementById('overlay').style.display = 'block';
+    });
+
+    // Close the popup when the close button is clicked
+    const closePopup = document.getElementById("closePopup");
+    closePopup.addEventListener("click", function() {
+    commentPopup.style.display = "none";
+    document.getElementById('overlay').style.display = 'none';
+    });
+
+
+    // Handle submitting the comment
+    const submitCommentButton = document.getElementById("submitCommentButton");
+
+    submitCommentButton.addEventListener("click", async function() {
+        const commentText = document.getElementById("commentText").value;
+
+        // Check if the comment text is not empty
+        if (!commentText) {
+            alert("Comment cannot be empty");
+            return;
+        }
+
+        // Send a POST request to your server to add the comment using the route
+        
+        const response = await fetch(`/comment/${RecipeID}`, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ CommentText: commentText })
+        });
+
+        if (response.status === 201) {
+            // Comment added successfully, you can update the UI as needed
+            commentPopup.style.display = "none";
+            location.reload();
+        } else {
+            alert("Failed to add the comment. Check authentication.");
+        }
+    });
+
+
+    
+    </script>
 </body>
 </html>

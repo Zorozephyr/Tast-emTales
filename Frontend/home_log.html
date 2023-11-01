@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tast'emTales</title>
+    <link rel="stylesheet" type="text/css" href="styles/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    
+    <div class="navbar">
+        <div class="title">Tast'emTales</div>
+        <div class="auth-buttons">
+            <a href="/logout">Log Out</a>
+            <a href="/profile">Profile</a>
+            <a href="/about">About</a>
+            <a href="/">Home</a>
+        </div>
+    </div>
+
+    <div class="background">
+        <div class="search-form">
+            
+            <form action="/search" method="POST">
+                <div class="search-container">
+                <input type="text" name="searchSentence" placeholder="Search Recipes">
+                
+                <button class="search-button" type = "submit">
+                    <div class="circle">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </button>
+                </div>
+            </form>
+        
+            
+            <p>Discover and share delectable cuisines</p>
+        </div>
+        
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchForm = document.querySelector(".search-form");
+            searchForm.style.display = "block"; // Ensure it's initially visible
+            searchForm.style.opacity = 0;
+            searchForm.style.transform = "translateY(-20px)";
+            setTimeout(function() {
+                searchForm.style.opacity = 1;
+                searchForm.style.transform = "translateY(0)";
+            }, 100);
+        });
+    </script>
+
+</body>
+</html>
