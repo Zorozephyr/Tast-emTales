@@ -1,0 +1,35 @@
+Project: Tast'emTales
+Homepage: home.html
+
+---
+
+Software Installations and Setup Steps:
+
+1. Node.js (JavaScript runtime)
+   - Download and install Node.js from: https://nodejs.org/
+   - Verify the installation by running: `node -v` and `npm -v`
+
+2. Database 
+   - Set up a database as given in sql_dump.txt.
+   - Configure the database connection to port 8111.
+
+3. Code Editor (e.g., Visual Studio Code)
+   - Download and install Visual Studio Code from: https://code.visualstudio.com/
+   - Open your project in Visual Studio Code.
+
+4. Project Dependencies
+   - Open a terminal in your project folder and run: `npm install`
+   - This will install all project dependencies.
+
+5. Start the Server
+   - Run your application: `node App.js`
+
+6. Open a web browser and go to http://localhost:3000
+   - You should see the homepage of your project.
+
+---
+
+Project Repository (Version Control):
+- GitHub Repository: https://github.com/Zorozephyr/Tast-emTales.git
+
+
