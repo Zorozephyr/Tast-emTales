@@ -183,6 +183,26 @@ sequelize
 ///////////////////////////////////////////////////////////
 //Start of Routes
 
+app.get('/profile', (req, res) => {
+  
+  const userIsSignedIn = !req.session.user ? false : true;
+  if(userIsSignedIn) {
+    const successHtml = fs.readFileSync(path.join(__dirname, '..', 'Frontend', 'user-profile.html'), 'utf8');
+
+        // Replace the placeholder with the username
+        const $ = cheerio.load(successHtml);
+
+        // Find the <p> element with id "usernamePlaceholder" and replace its content
+      ; // Replace this with the text you want to add
+        $('#usernamePlaceholder').text(req.session.user.username);
+        const modifiedHtml = $.html();
+        res.status(200).send(modifiedHtml);
+  } else {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  
+
+});
 //Login checks for username and email
 app.get('/', (req, res) => {
   // Send the login.html file as the response
