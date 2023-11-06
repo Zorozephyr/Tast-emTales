@@ -28,6 +28,7 @@ app.use(sessionMiddleware);
 app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', path.join(__dirname, 'views'));
 "MiddleWare to check authentication"
 const authenticationMiddleware = (req, res, next) => {
   if (!req.session.user) {
