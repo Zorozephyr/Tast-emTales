@@ -444,8 +444,8 @@ app.delete('/recipe/:RecipeID', authenticationMiddleware, async (req, res) => {
 
     // Delete the recipe from the database
     await recipe.destroy();
-
-    res.json({ message: 'Recipe deleted successfully' });
+    
+    res.status(201).redirect('/recipes/my-recipes');
   } catch (error) {
     console.error('Error deleting the recipe:', error);
     res.status(500).json({ message: 'Failed to delete the recipe' });

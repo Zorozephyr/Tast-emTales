@@ -11,15 +11,42 @@
     <h1 class="search-results-count" style="font-family: 'DM Sans', sans-serif" id="search-results-count">Recipes Written by You</h1>
     
     <div class="results">
-        <% recipes.forEach(recipe => { %>
-            <a href="/recipe/<%= recipe.RecipeID %>">
+        <% if (recipes.length > 0) { %>
+            <% recipes.forEach(recipe => { %>
                 <div class="result-card">
-                  <div class="result-image" style="background-image: url('https://source.unsplash.com/300x300/?<%= recipe.Title.split(' ').pop() %>');"></div>
-                  <h2 class="result-title"><%= recipe.Title %></h2>
-                  <p class="result-description"><%= recipe.Cuisine %></p>
+                    <a href="/recipe/<%= recipe.RecipeID %>">
+                        <div class="result-image" style="background-image: url('https://source.unsplash.com/300x300/?<%= recipe.Title.split(' ').pop() %>');"></div>
+                        <h2 class="result-title"><%= recipe.Title %></h2>
+                        <p class="result-description"><%= recipe.Cuisine %></p>
+                    </a>
+    
+                    <!-- Delete Button with Confirmation Popup -->
+                    <button onclick="confirmDelete('<%= recipe.RecipeID %>')" class="delete-button">&#10006;</button>
+    
+                    <!-- Confirmation Popup -->
+                    <div id="delete-confirmation-<%= recipe.RecipeID %>" class="delete-confirmation">
+                        <p>Are you sure you want to delete this recipe?</p>
+                        <form id="delete-form-<%= recipe.RecipeID %>" method="POST" action="/recipe/<%= recipe.RecipeID %>?_method=DELETE">
+                            <button type="submit">Yes, Delete</button>
+                            <button type="button" onclick="cancelDelete('<%= recipe.RecipeID %>')">Cancel</button>
+                        </form>
+                    </div>
                 </div>
-              </a>
-        <% }); %>
+            <% }); %>
+        <% } else { %>
+            <h2 class="no-recipes-message">No recipes yet.</h2>
+        <% } %>
     </div>
+    
+
+    <script>
+        function confirmDelete(recipeID) {
+            document.getElementById(`delete-confirmation-${recipeID}`).style.display = 'block';
+        }
+
+        function cancelDelete(recipeID) {
+            document.getElementById(`delete-confirmation-${recipeID}`).style.display = 'none';
+        }
+    </script>
 </body>
 </html>
