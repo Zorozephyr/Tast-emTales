@@ -28,6 +28,7 @@ app.use(sessionMiddleware);
 app.use(methodOverride('_method'));
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
+app.set('views', path.join(__dirname, 'views'));
 "MiddleWare to check authentication"
 const authenticationMiddleware = (req, res, next) => {
   if (!req.session.user) {
@@ -39,10 +40,9 @@ const authenticationMiddleware = (req, res, next) => {
 ////////////////////////////////////
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize('tastetales', 'root', '', {
-  host: 'localhost',
+const sequelize = new Sequelize('sql12659670', 'sql12659670', '5NSjHj83Fd', {
+  host: 'sql12.freesqldatabase.com',
   dialect: 'mysql',
-  port:3306
 });
 
 const Recipe = sequelize.define('recipe', {
@@ -183,6 +183,26 @@ sequelize
 ///////////////////////////////////////////////////////////
 //Start of Routes
 
+app.get('/profile', (req, res) => {
+  
+  const userIsSignedIn = !req.session.user ? false : true;
+  if(userIsSignedIn) {
+    const successHtml = fs.readFileSync(path.join(__dirname, '..', 'Frontend', 'user-profile.html'), 'utf8');
+
+        // Replace the placeholder with the username
+        const $ = cheerio.load(successHtml);
+
+        // Find the <p> element with id "usernamePlaceholder" and replace its content
+      ; // Replace this with the text you want to add
+        $('#usernamePlaceholder').text(req.session.user.username);
+        const modifiedHtml = $.html();
+        res.status(200).send(modifiedHtml);
+  } else {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  
+
+});
 //Login checks for username and email
 app.get('/', (req, res) => {
   // Send the login.html file as the response
@@ -368,6 +388,23 @@ app.get('/recipes/my-recipes', authenticationMiddleware, async (req, res) => {
     console.error('Error retrieving user recipes:', error);
     res.status(500).json({ message: 'Failed to retrieve user recipes' });
   }
+});
+
+app.get('/recipes/my-recipes', authenticationMiddleware, async (req, res) => {
+  const userID = req.session.user.userID;
+  console.log(userID)
+
+  try {
+    // Find all recipes authored by the current user
+    const userRecipes = await Recipe.findAll({
+      where: { UserID: userID },
+    });
+
+    res.json(userRecipes);
+  } catch (error) {
+    console.error('Error retrieving user recipes:', error);
+    res.status(500).json({ message: 'Failed to retrieve user recipes' });
+  }
 });
 
 //Post New Recipe
@@ -654,26 +691,6 @@ app.put('/editprofile', async (req, res) => {
   }
 });
 
-app.get('/profile', (req, res) => {
-  
-  const userIsSignedIn = !req.session.user ? false : true;
-  if(userIsSignedIn) {
-    const successHtml = fs.readFileSync(path.join(__dirname, '..', 'Frontend', 'user-profile.html'), 'utf8');
-
-        // Replace the placeholder with the username
-        const $ = cheerio.load(successHtml);
-
-        // Find the <p> element with id "usernamePlaceholder" and replace its content
-      ; // Replace this with the text you want to add
-        $('#usernamePlaceholder').text(req.session.user.username);
-        const modifiedHtml = $.html();
-        res.status(200).send(modifiedHtml);
-  } else {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-  
-
-});
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
