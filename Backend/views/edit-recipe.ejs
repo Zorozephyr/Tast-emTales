@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/styles/recipe.css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <title>Edit Recipe</title>
+</head>
+<body>
+    <div class="success-popup" id="successPopup">
+        <p class="success-popup-message">Recipe updated successfully!</p>
+        <span class="close-button" onclick="closePopup()">Close</span>
+    </div>
+
+    <script>
+        // Function to get URL parameters
+        function getQueryParam(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+        function closePopup() {
+            var successPopup = document.getElementById('successPopup');
+            if (successPopup) {
+                successPopup.style.display = 'none';
+            }
+        }
+        // Check if the URL contains a success parameter
+        if (getQueryParam('success') === 'true') {
+            // Display the pop-up
+            var successPopup = document.getElementById('successPopup');
+            if (successPopup) {
+                successPopup.style.display = 'block';
+            }
+        }
+    </script>
+    <div class="navbar">
+        <div class="title">Tast'emTales</div>
+        <div class="auth-buttons">
+            <a href="/profile">Profile</a>
+            <a href="/about">About</a>
+            <a href="/">Home</a>
+        </div>
+    </div>
+    <h1>Edit Recipe</h1>
+    <!-- Modify the form action to include the RecipeID and use the PUT method -->
+    <form id = "editForm" action="/editrecipe/<%= recipe.RecipeID %>?_method=PUT" method="POST">
+        <input type="hidden" name="_method" value="PUT">
+        <label for="Title">Title:</label>
+        <input type="text" id="Title" name="Title" value="<%= recipe.Title %>" required><br><br>
+        
+        <label for="Ingredients">Ingredients:</label>
+        <textarea id="Ingredients" name="Ingredients" required><%= recipe.Ingredients %></textarea><br><br>
+        
+        <label for="HowToCook">How to Cook:</label>
+        <textarea id="HowToCook" name="HowToCook" required><%= recipe.HowToCook %></textarea><br><br>
+        
+        <label for="Cuisine">Cuisine:</label>
+        <input type="text" id="Cuisine" name="Cuisine" value="<%= recipe.Cuisine %>" required><br><br>
+        
+        <input type="submit" value="Update Recipe">
+    </form>
+
+</body>
+</html>

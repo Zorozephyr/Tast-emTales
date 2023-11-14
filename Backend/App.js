@@ -40,8 +40,9 @@ const authenticationMiddleware = (req, res, next) => {
 ////////////////////////////////////
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize('sql12659670', 'sql12659670', '5NSjHj83Fd', {
-  host: 'sql12.freesqldatabase.com',
+const sequelize = new Sequelize('tastetales', 'root', '', {
+  host: 'localhost',
+  port: 3306,
   dialect: 'mysql',
 });
 
@@ -428,8 +429,30 @@ app.post('/recipe',authenticationMiddleware,async (req, res) => {
   }
 });
 
+//Edit recipe page
+app.get('/recipe/:RecipeID/edit', authenticationMiddleware, async (req, res) => {
+  const { RecipeID } = req.params;
+  const userID = req.session.user.userID;
+
+  try {
+      // Check if the recipe with the given RecipeID exists and is associated with the logged-in user
+      const recipe = await Recipe.findOne({ where: { RecipeID: RecipeID, UserID: userID } });
+
+      if (!recipe) {
+          return res.status(404).json({ message: 'Recipe not found or unauthorized to edit.' });
+      }
+
+      // Render the edit-recipe page with the recipe data
+      res.render('edit-recipe', { recipe });
+  } catch (error) {
+      console.error('Error retrieving recipe for edit:', error);
+      res.status(500).json({ message: 'Failed to retrieve recipe for edit' });
+  }
+});
+
+
 //Edit or Update a Recipe
-app.put('/recipe/:RecipeID',authenticationMiddleware,async (req, res) => {
+app.put('/editrecipe/:RecipeID',authenticationMiddleware,async (req, res) => {
   const {RecipeID}=req.params;
   const {Title,Ingredients,HowToCook,Cuisine}=req.body;
   const userID = req.session.user.userID;
@@ -459,7 +482,7 @@ app.put('/recipe/:RecipeID',authenticationMiddleware,async (req, res) => {
     // Save the updated recipe
     await recipe.save();
 
-    res.json({ message: 'Recipe updated successfully', recipe });
+    res.status(201).redirect('/recipes/my-recipes');
   } catch (error) {
     console.error('Error updating the recipe:', error);
     res.status(500).json({ message: 'Failed to update the recipe' });

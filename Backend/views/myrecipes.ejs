@@ -20,9 +20,12 @@
                         <p class="result-description"><%= recipe.Cuisine %></p>
                     </a>
     
-                    <!-- Delete Button with Confirmation Popup -->
-                    <button onclick="confirmDelete('<%= recipe.RecipeID %>')" class="delete-button">&#10006;</button>
-    
+                    <!-- Delete Button with Confirmation Popup & edit link -->
+                   
+                        <button onclick="confirmDelete('<%= recipe.RecipeID %>')" class="delete-button">&#10006;</button>
+                        <a href="/recipe/<%= recipe.RecipeID %>/edit" class="edit-button">&#9998;</a>
+                    
+
                     <!-- Confirmation Popup -->
                     <div id="delete-confirmation-<%= recipe.RecipeID %>" class="delete-confirmation">
                         <p>Are you sure you want to delete this recipe?</p>

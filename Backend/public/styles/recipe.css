@@ -1,0 +1,106 @@
+body {
+    background-image: url('../images/user_profile.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 100vh;
+    margin: 0;
+    font-family: 'DM Sans', sans-serif;
+    color: #fff; /* Make text in the body white */
+}
+/* CSS for the navigation bar */
+.navbar {
+    background-color: rgb(242, 242, 213);
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    padding: 0px 0px; /* Increase the top and bottom padding */
+}
+
+.navbar a {
+    float: right;
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 24px 24px; /* Increase the padding for each link */
+    text-decoration: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px; /* Increase the font size */
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: rgb(57, 57, 57);
+}
+
+.navbar .title {
+    float: left;
+    padding: 20px 24px; /* Increase the padding for the title */
+    color: black;
+    font-weight: bold;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 28px; /* Increase the font size for the title */
+}
+.logo {
+    font-size: 24px;
+    margin-left: 20px;
+    font-family: 'Arial', sans-serif; /* Choose a prettier font */
+}
+h1 {
+    margin-top: 80px; /* Adjust the margin-top to create space below the navbar */
+    text-align: center;
+}
+form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: transparent; /* Remove background color */
+    text-align: left; /* Align the form content to the left */
+}
+label {
+    display: block;
+    margin-top: 10px;
+}
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Ensure input elements stay within the container */
+}
+input[type="submit"] {
+    background-color: orange;
+    color: #fff;
+    font-weight: bold;
+    font-size: 18px;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+.success-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none; /* Initially hidden */
+}
+.success-popup-message {
+    margin-bottom: 10px; /* Add space between message and button */
+    color: #000;
+}
+.close-button {
+    display: block; /* Make it a block-level element */
+    background-color: orange; /* Green background color for the button */
+    color: #fff; /* White text color for the button */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center; /* Center-align the text */
+    margin-top: 10px; /* Add space between message and button */
+}
