@@ -40,7 +40,7 @@ const authenticationMiddleware = (req, res, next) => {
 ////////////////////////////////////
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize('sql12659670', 'sql12659670', '5NSjHj83Fd', {
+const sequelize = new Sequelize('sql12661571', 'sql12661571', 'pbVxBDxj9n', {
   host: 'sql12.freesqldatabase.com',
   dialect: 'mysql',
 });
